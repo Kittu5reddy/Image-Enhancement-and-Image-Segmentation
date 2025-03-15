@@ -1,57 +1,58 @@
-from main import *  # Ensure 'main.py' exists and is needed
 import streamlit as st
-import matplotlib.pyplot as plt
-import cv2 
+import cv2
 import numpy as np
+from PIL import Image
 
-st.title("Enhancement Of Image")
+# Streamlit App Title
+st.title("🖼️ Image Enhancement & Segmentation using OpenCV")
 
-# Read image using OpenCV (BGR format)
-img = cv2.imread('./img/normal.png')
+# Upload Image
+uploaded_file = st.file_uploader("Upload an image", type=["jpg", "png", "jpeg"])
 
-# Convert BGR to RGB
-rgb_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+if uploaded_file is not None:
+    # Convert image to OpenCV format
+    image = Image.open(uploaded_file)
+    image = np.array(image)
+    
+    if len(image.shape) == 3:  # Convert RGB to Grayscale if needed
+        image_gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+    else:
+        image_gray = image
 
-# Show conversion code
-code = """img = cv2.imread('./img/normal.png')
-rgb_image = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)"""
-st.code(code, language="Python")
+    st.subheader("Original Image")
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
-st.text("OpenCV follows BGR (Blue-Green-Red), so we need to convert it to RGB.")
+    # Sidebar Options for Enhancement
+    st.sidebar.header("Image Enhancement")
+    enhance_option = st.sidebar.selectbox("Choose Enhancement", ["None", "Histogram Equalization", "CLAHE", "Sharpening"])
 
-# Display original and converted images side by side
-col1, col2 = st.columns(2)
-with col1:
-    st.image(img, caption=f"BGR Image (Shape: {img.shape})", use_container_width=True)
+    # Enhancement Processing
+    enhanced_image = image_gray.copy()
+    if enhance_option == "Histogram Equalization":
+        enhanced_image = cv2.equalizeHist(image_gray)
+    elif enhance_option == "CLAHE":
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        enhanced_image = clahe.apply(image_gray)
+    elif enhance_option == "Sharpening":
+        kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
+        enhanced_image = cv2.filter2D(image_gray, -1, kernel)
 
-with col2:
-    st.image(rgb_image, caption=f"RGB Image (Shape: {rgb_image.shape})", use_container_width=True)
+    if enhance_option != "None":
+        st.subheader(f"Enhanced Image - {enhance_option}")
+        st.image(enhanced_image, caption=f"{enhance_option} Applied", use_column_width=True, channels="GRAY")
 
-# Resize the image
-resized_image = cv2.resize(rgb_image, (340, 340))
+    # Sidebar Options for Segmentation
+    st.sidebar.header("Image Segmentation")
+    segment_option = st.sidebar.selectbox("Choose Segmentation", ["None", "Thresholding", "Canny Edge Detection"])
 
-# Show resizing code
-code = """resized_image = cv2.resize(rgb_image, (340, 340))"""
-st.code(code, language="Python")
+    # Segmentation Processing
+    segmented_image = image_gray.copy()
+    if segment_option == "Thresholding":
+        _, segmented_image = cv2.threshold(image_gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    elif segment_option == "Canny Edge Detection":
+        segmented_image = cv2.Canny(image_gray, 100, 200)
 
-# Display resized image
-st.image(resized_image, caption=f"Resized Image (Shape: {resized_image.shape})", width=500)
+    if segment_option != "None":
+        st.subheader(f"Segmented Image - {segment_option}")
+        st.image(segmented_image, caption=f"{segment_option} Applied", use_column_width=True, channels="GRAY")
 
-# Extract color channels
-red_channel = resized_image[:, :, 0]
-green_channel = resized_image[:, :, 1]
-blue_channel = resized_image[:, :, 2]
-
-st.title("__Split Image__")
-
-# Display color channels in columns
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.image(red_channel, caption="Red Channel", use_container_width=True)
-
-with col2:
-    st.image(green_channel, caption="Green Channel", use_container_width=True)
-
-with col3:
-    st.image(blue_channel, caption="Blue Channel", use_container_width=True)
