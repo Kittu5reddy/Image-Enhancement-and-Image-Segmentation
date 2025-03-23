@@ -39,6 +39,17 @@ streamlit run app.py
 - `__pycache__/`: Directory containing compiled Python files.
 - `.gitignore`: Git ignore file.
 
+## Sample Images
+
+Here are some sample images from the `img` folder:
+
+![First Image](img/first.png)
+![Second Image](img/second.png)
+![Third Image](img/third.png)
+![Fourth Image](img/fivth.png)
+![Fifth Image](img/normal.png)
+![Sixth Image](img/seven.png)
+
 ## How to Use
 
 1. Run the application using the command mentioned above.

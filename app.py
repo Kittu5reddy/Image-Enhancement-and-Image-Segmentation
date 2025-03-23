@@ -19,9 +19,6 @@ if uploaded_file is not None:
     else:
         image_gray = image
 
-    st.subheader("Original Image")
-    st.image(image, caption="Uploaded Image", use_column_width=True)
-
     # Sidebar Options for Enhancement
     st.sidebar.header("Image Enhancement")
     enhance_option = st.sidebar.selectbox("Choose Enhancement", ["None", "Histogram Equalization", "CLAHE", "Sharpening"])
@@ -37,10 +34,6 @@ if uploaded_file is not None:
         kernel = np.array([[0, -1, 0], [-1, 5, -1], [0, -1, 0]])
         enhanced_image = cv2.filter2D(image_gray, -1, kernel)
 
-    if enhance_option != "None":
-        st.subheader(f"Enhanced Image - {enhance_option}")
-        st.image(enhanced_image, caption=f"{enhance_option} Applied", use_column_width=True, channels="GRAY")
-
     # Sidebar Options for Segmentation
     st.sidebar.header("Image Segmentation")
     segment_option = st.sidebar.selectbox("Choose Segmentation", ["None", "Thresholding", "Canny Edge Detection"])
@@ -52,7 +45,17 @@ if uploaded_file is not None:
     elif segment_option == "Canny Edge Detection":
         segmented_image = cv2.Canny(image_gray, 100, 200)
 
-    if segment_option != "None":
-        st.subheader(f"Segmented Image - {segment_option}")
+    # Display images side by side
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.write("Original Image")
+        st.image(image, caption="Uploaded Image", use_column_width=True)
+    
+    with col2:
+        st.write("Enhanced Image - ")
+        st.image(enhanced_image, caption=f"{enhance_option} Applied", use_column_width=True, channels="GRAY")
+    
+    with col3:
+        st.write(f"Segmented Image -")
         st.image(segmented_image, caption=f"{segment_option} Applied", use_column_width=True, channels="GRAY")
-
