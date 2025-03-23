@@ -47,7 +47,6 @@ Here are some sample images from the `img` folder:
 ![Second Image](img/second.png)
 ![Third Image](img/third.png)
 ![Fourth Image](img/fivth.png)
-![Fifth Image](img/normal.png)
 ![Sixth Image](img/seven.png)
 
 ## How to Use
